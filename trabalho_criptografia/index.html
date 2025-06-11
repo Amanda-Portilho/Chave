@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Chave Matriz</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    integrity="sha512-ZrjH5KTV+Mx1J+h53TfplhRzUKqKPOoY1D1OkZfnZMyKD5pmPyKz8cX/NcgukPaFjwqbpYMOIDo7a7aZsZDgxQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  
+  <style>
+    :root {
+      --bg: #1e1e2f;
+      --card: #2e2e3e;
+      --text: #f0f0f0;
+      --primary: #00bcd4;
+      --accent: #009688;
+      --error: #e57373;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      background-color: var(--card);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
+      width: 90%;
+      max-width: 500px;
+      text-align: center;
+      animation: fadeIn 0.5s ease-in-out;
+    }
+
+    h1 {
+      color: var(--primary);
+      margin-bottom: 20px;
+    }
+
+    .input-container {
+      position: relative;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 8px;
+      background-color: #444;
+      color: white;
+      font-size: 16px;
+    }
+
+    .char-count {
+      position: absolute;
+      right: 10px;
+      bottom: 10px;
+      color: var(--primary);
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    button {
+      padding: 12px 20px;
+      margin: 10px 8px;
+      font-size: 15px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      color: white;
+      background: var(--primary);
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: var(--accent);
+    }
+
+    #resultado {
+      margin-top: 20px;
+      font-weight: bold;
+      word-wrap: break-word;
+      color: var(--primary);
+    }
+
+    .icon-btn i {
+      margin-right: 8px;
+    }
+
+    .copy-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    @media (max-width: 480px) {
+      button {
+        width: 100%;
+        margin-top: 10px;
+      }
+    }
+
+    .historico {
+      margin-top: 30px;
+      text-align: left;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .historico ul {
+      padding-left: 0;
+    }
+
+    .historico li {
+      list-style-type: none;
+      margin-bottom: 10px;
+      padding: 10px;
+      background: #444;
+      border-radius: 8px;
+    }
+
+    .historico li .tipo {
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1><i class="fas fa-lock"></i>Chave Matriz</h1>
+    <h2><i class="fas fa-lock"></i>Uma Abordagem Matricial Na Criptografia De Dados</h2>
+
+    <div class="input-container">
+      <input type="text" id="entrada" placeholder="Digite sua mensagem" oninput="atualizarContagem()" />
+      <div class="char-count" id="contagem">0</div>
+    </div>
+
+    <div>
+      <button class="icon-btn" onclick="criptografar()">
+        <i class="fas fa-shield-alt"></i> Criptografar
+      </button>
+      <button class="icon-btn" onclick="descriptografar()">
+        <i class="fas fa-unlock-alt"></i> Descriptografar
+      </button>
+    </div>
+
+    <div>
+      <input type="file" id="arquivo" />
+      <button onclick="uploadArquivo()">Subir Arquivo</button>
+    </div>
+
+    <div id="resultado"></div>
+
+    <div class="copy-container">
+      <button onclick="copiarTexto()">Copiar Resultado</button>
+    </div>
+
+    <h2>Histórico</h2>
+
+    <div class="historico" id="historico"></div>
+
+    <button onclick="exportarHistorico()">Exportar Histórico</button>
+
+  </div>
+
+  <script>
+    function atualizarContagem() {
+      const texto = document.getElementById("entrada").value;
+      document.getElementById("contagem").innerText = texto.length;
+    }
+
+    async function criptografar() {
+      const texto = document.getElementById("entrada").value;
+      if (!texto.trim()) {
+        alert("Por favor, digite uma mensagem para criptografar.");
+        return;
+      }
+
+      const res = await fetch("/criptografar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ texto })
+      });
+
+      const dados = await res.json();
+      document.getElementById("resultado").innerText = dados.resultado || `Erro: ${dados.erro}`;
+    }
+
+    async function descriptografar() {
+      const texto = document.getElementById("entrada").value;
+      if (!texto.trim()) {
+        alert("Por favor, digite uma mensagem para descriptografar.");
+        return;
+      }
+
+      const res = await fetch("/descriptografar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ texto })
+      });
+
+      const dados = await res.json();
+      document.getElementById("resultado").innerText = dados.resultado || `Erro: ${dados.erro}`;
+    }
+
+    async function uploadArquivo() {
+      const arquivo = document.getElementById("arquivo").files[0];
+      if (!arquivo) {
+        alert("Por favor, selecione um arquivo.");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("arquivo", arquivo);
+
+      const res = await fetch("/upload", {
+        method: "POST",
+        body: formData
+      });
+
+      const dados = await res.json();
+      if (dados.texto) {
+        document.getElementById("entrada").value = dados.texto;
+        atualizarContagem();
+      } else {
+        alert(dados.erro || "Erro ao carregar arquivo");
+      }
+    }
+
+    async function carregarHistorico() {
+      const res = await fetch("/historico");
+      const historico = await res.json();
+      const historicoContainer = document.getElementById("historico");
+      historicoContainer.innerHTML = '';
+      historico.forEach(item => {
+      });
+    }
+
+    async function copiarTexto() {
+      const texto = document.getElementById("resultado").innerText;
+      if (texto) {
+        navigator.clipboard.writeText(texto).then(() => {
+          alert("Texto copiado com sucesso!");
+        });
+      } else {
+        alert("Não há texto para copiar.");
+      }
+    }
+
+    async function exportarHistorico() {
+      const resultado = document.getElementById("resultado").innerText;
+      const res = await fetch("/exportar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ conteudo: resultado })
+      });
+      const blob = await res.blob();
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "resultado_com_historico.txt";
+      link.click();
+    }
+
+    async function adicionarHistorico(tipo, resultado) {
+      const res = await fetch("/adicionar-historico", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tipo, resultado })
+      });
+
+      carregarHistorico();
+    }
+
+    carregarHistorico();
+  </script>
+</body>
+
+</html>

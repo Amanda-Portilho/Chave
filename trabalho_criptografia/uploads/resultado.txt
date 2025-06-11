@@ -1,0 +1,13 @@
+----- HISTÓRICO -----
+[
+  {
+    "tipo": "criptografar",
+    "entrada": "1234",
+    "resultado": "4567"
+  },
+  {
+    "tipo": "descriptografar",
+    "entrada": "4567",
+    "resultado": "1234"
+  }
+]
